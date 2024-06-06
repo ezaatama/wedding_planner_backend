@@ -4,11 +4,12 @@ const session = require("express-session");
 const dotEnv = require("dotenv");
 const bodyParser = require("body-parser");
 const app = express();
-const MIGRATE = require("./config/migration.js");
+// const MIGRATE = require("./config/migration.js");
 
 dotEnv.config();
 
-MIGRATE;
+//MIGRATION DB
+// MIGRATE;
 
 app.use(
     session({
