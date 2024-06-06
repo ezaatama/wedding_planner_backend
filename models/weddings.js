@@ -3,6 +3,12 @@ const sequelize = require("../config/databases");
 
 const Weddings = sequelize.define(
     "weddings", {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            allowNull: false,
+            primaryKey: true,
+        },
         groom_name: {
             type: DataTypes.STRING,
             validate: {
