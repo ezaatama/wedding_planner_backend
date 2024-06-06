@@ -1,6 +1,5 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/databases");
-const Weddings = require("./weddings");
 
 const Users = sequelize.define(
     "users", {
@@ -66,17 +65,5 @@ const Users = sequelize.define(
         ]
     }
 );
-
-Users.hasOne(Weddings, {
-    foreignKey: 'user_id',
-    sourceKey: 'uuid',
-    as: 'wedding'
-});
-
-Weddings.belongsTo(Users, {
-    foreignKey: 'user_id',
-    targetKey: 'uuid',
-    as: 'user'
-});
 
 module.exports = Users;
