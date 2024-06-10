@@ -54,9 +54,14 @@ const Users = sequelize.define(
             type: DataTypes.ENUM("admin", "user"),
             allowNull: false,
         },
+        deletedAt: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
     }, {
         freezeTableName: true,
         timestamps: true,
+        paranoid: true, // Aktifkan soft deletes
         indexes: [
             {
                 unique: true,

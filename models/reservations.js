@@ -30,10 +30,15 @@ const Reservations = sequelize.define(
                 key: 'id'
             },
             onDelete: "CASCADE"
-        }
+        },
+        deletedAt: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
     }, {
         freezeTableName: true,
-        timestamps: true
+        timestamps: true,
+        paranoid: true, // Aktifkan soft deletes
     }
 );
 

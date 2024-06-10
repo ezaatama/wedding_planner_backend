@@ -24,6 +24,14 @@ const Images = sequelize.define(
             },
             onDelete: "CASCADE"
         },
+        deletedAt: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
+    }, {
+        freezeTableName: true,
+        timestamps: true,
+        paranoid: true, // Aktifkan soft deletes
     }
 );
 
