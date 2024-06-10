@@ -115,7 +115,7 @@ sequelize
   .sync({force: true})
   .then(() => {
     console.log("Database connected...");
-    // User.sync({alter: true});
+    // Users.sync({alter: true});
     // Guests.sync({force: true});
     // User.drop();
   })
