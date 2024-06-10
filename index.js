@@ -24,6 +24,7 @@ app.use(
           //karna disini masih local menggunakan http maka secure jadi false
           secure: false,
           sameSite: "none",
+          maxAge: 60 * 60 * 1000 // 24 jam
         },    
     })
 );
