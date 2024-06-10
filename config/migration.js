@@ -123,4 +123,4 @@ sequelize
     console.error(err);
   });
 
-module.exports = { Users, Weddings, Guests, Reservations, Images, AdminActions, Designs };;
+module.exports = { Users, Weddings, Guests, Reservations, Images, AdminActions, Designs };
