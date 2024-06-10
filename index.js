@@ -4,6 +4,9 @@ const session = require("express-session");
 const dotEnv = require("dotenv");
 const bodyParser = require("body-parser");
 const app = express();
+const userRoutes = require("./routes/users/users");
+const authRoutes = require("./routes/auth/auth");
+const responseMiddleware = require("./middleware/response");
 // const MIGRATE = require("./config/migration.js");
 
 dotEnv.config();
@@ -52,6 +55,10 @@ app.use((error, req, res, next) => {
 app.get('/', function(req, res) {
     res.send("Init API");
 });
+
+app.use(responseMiddleware);
+app.use(userRoutes);
+app.use(authRoutes);
 
 app.listen(process.env.APP_PORT, () => {
     console.log(`Example app listening on port ${process.env.APP_PORT}`);
