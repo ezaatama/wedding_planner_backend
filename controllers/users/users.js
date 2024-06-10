@@ -11,21 +11,15 @@ const createUser = async (req, res) => {
     const hashPassword = await bcrypt.hash(password, salt);
 
     try {
-        const accountId = req.role;
-
-        if (accountId === "admin") {
-            await Users.create({
-                username: username,
-                email: email,
-                password: hashPassword,
-                full_name: full_name,
-                phone: phone,
-                role: role
-            });
-            res.status(201).responseNoData(201, true, "Akun berhasil didaftarkan!");
-        } else {
-            res.status(403).responseNoData(403, false, "Tidak diizinkan membuat akun!");
-        }
+        await Users.create({
+            username: username,
+            email: email,
+            password: hashPassword,
+            full_name: full_name,
+            phone: phone,
+            role: role
+        });
+        res.status(201).responseNoData(201, true, "Akun berhasil didaftarkan!");
     } catch (error) {
         res.status(400).responseNoData(400, false, error.message);
     }
@@ -36,7 +30,6 @@ const findAllUser = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     try {
-
         const result = await Users.findAndCountAll({
             attributes: ["uuid", "username", "email", "full_name", "phone"],
             limit,
@@ -75,7 +68,94 @@ const findAllUser = async (req, res) => {
     }
 }
 
+const findUserById = async (req, res) => {
+    try {
+          const response = await Users.findOne({
+            attributes: ["uuid", "username", "email", "full_name", "phone"],
+            where: {
+                uuid: req.params.uuid
+            }
+        });
+        if (!response) return res.status(404).responseNoData(404, false, "Data detail akun tidak ditemukan!");
+
+        return res.status(200).responseWithData(200, true, "Data detail akun berhasil diambil!", response);
+    } catch (error) {
+        res.status(500).responseNoData(500, false, error.message);
+    }
+}
+
+const updateUser = async (req, res) => {
+     const result = await Users.findOne({
+        where: {
+            uuid: req.params.uuid
+        }
+    });
+
+    if (!result) return res.status(404).responseNoData(404, false, "Data akun tidak ditemukan!");
+
+    const { email, password, full_name, phone, role} = req.body;
+    let hashPassword = result.password; // Default ke password lama
+
+    if (password && password !== "") {
+        const salt = bcrypt.genSaltSync();
+        hashPassword = await bcrypt.hash(password, salt);
+    }
+
+    try {
+        const accountId = req.role;
+
+        if (accountId === "admin") {
+            await Users.update({
+                email: email,
+                password: hashPassword,
+                full_name: full_name,
+                phone: phone,
+                role: role
+            }, {
+                where: {
+                    uuid: req.params.uuid
+                }
+            });
+            return res.status(201).responseNoData(201, true, "Akun berhasil diubah!");
+        } else {
+            return res.status(403).responseNoData(403, false, "Tidak diizinkan mengubah akun!");
+        }
+    } catch (error) {
+        return res.status(500).responseNoData(500, false, error.message);
+    }
+}
+
+const deleteUser = async (req, res) => {
+    try {
+        const result = await Users.findOne({
+            where: {
+                uuid: req.params.uuid || null
+            }
+        });
+
+        if (!result) return res.status(404).responseNoData(404, false, "Data akun tidak ditemukan!");
+
+        const accountId = req.role;
+
+        if (accountId === "admin") {
+            await Users.destroy({
+                where: {
+                  uuid: result.uuid,
+                },
+              });
+            return res.status(200).responseNoData(200, true, "Akun berhasil dihapus!");
+        } else {
+            return res.status(403).responseNoData(403, false, "Tidak diizinkan menghapus data users!");
+        }
+    } catch (error) {
+        return res.status(500).responseNoData(500, false, error.message);
+    }
+}
+
 module.exports = {
     createUser,
-    findAllUser
+    findAllUser,
+    findUserById,
+    updateUser,
+    deleteUser
 };
