@@ -37,10 +37,81 @@ const login = async (req, res) => {
 
         res.setHeader("X-Access-Token", accessToken);
         res.status(200).responseWithData(200, true, "Anda berhasil login!", { expiresIn: process.env.EXPIRES_IN });
-
     } catch (error) {
         res.status(500).responseNoData(500, false, error.message);
     }
 }
 
-module.exports = { login };
+const me = async (req, res) => {
+    try {
+        if(!req.session.userId) {
+            return res.status(401).responseNoData(401, false, "Sesi Anda telah habis!");
+        }
+
+        const result = await Users.findOne({
+            attributes: ["uuid", "username", "email", "full_name", "phone"],
+            where : {
+                id: req.session.userId
+            }
+        });
+
+        if (!result) return res.status(404).responseNoData(404, false, "Akun tidak ditemukan!");
+
+        res.status(200).responseWithData(200, true, "Akun berhasil diambil!", result);
+    } catch (error) {
+        res.status(500).responseNoData(500, false, error.message);
+    }
+}
+
+const changePass = async (req, res) => {
+    const { currentPassword, password, newPassword } = req.body;
+    
+    try {
+        const result = await Users.findOne({
+            where: {
+                id: req.session.userId
+            }
+        });
+
+        if (!result) return res.status(404).responseNoData(404, false, "Akun tidak ditemukan!");
+
+        const isPasswordValid = await bcrypt.compare(currentPassword, result.password);
+      
+        if (!isPasswordValid) {
+            return res.status(400).responseNoData(400, false, "Password yang Anda masukkan salah!");
+        }
+        
+        if (password !== newPassword) {
+            return res.status(400).responseNoData(400, false, "Password dan konfirmasi password tidak cocok!");
+        }
+
+        const salt = bcrypt.genSaltSync();
+        const hashPassword = await bcrypt.hash(password, salt);
+
+        await Users.update({
+            password: hashPassword,
+        }, {
+            where: {
+                id: req.session.userId
+            }
+        });
+
+        return res.status(200).responseNoData(200, true, "Password berhasil diubah!");
+    } catch (error) {
+        return res.status(500).responseNoData(500, false, error.message);
+    }
+}
+
+const logout = async (req, res) => {
+    try {
+        req.session.destroy((err) => {
+            if (err) return res.status(400).responseNoData(400, false, "Anda tidak dapat logout!");
+            res.removeHeader("X-Access-Token");
+            res.status(200).responseNoData(200, true, "Anda berhasil logout!");
+        });
+    } catch (error) {
+        return res.status(500).responseNoData(500, false, error.message);
+    }
+}
+
+module.exports = { login, me, changePass, logout };
