@@ -22,15 +22,17 @@ const login = async (req, res) => {
         if (result.role !== role)
             return res.status(403).responseNoData(403, false, "Role yang Anda masukkan tidak sesuai!");
 
-        req.session.userId = result.id;
+        req.session.userId = result.uuid;
         const userId = result.id;
+        const uuid = result.uuid;
         const emailId = result.email;
         const roleId = result.role;
 
         const accessToken = jwt.sign({
             userId,
-            email: emailId,
-            role: roleId
+            uuid,
+            emailId,
+            roleId
         }, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: process.env.EXPIRES_IN
         });
@@ -44,22 +46,20 @@ const login = async (req, res) => {
 
 const me = async (req, res) => {
     try {
-        if(!req.session.userId) {
-            return res.status(401).responseNoData(401, false, "Sesi Anda telah habis!");
-        }
-
         const result = await Users.findOne({
             attributes: ["uuid", "username", "email", "full_name", "phone"],
             where : {
-                id: req.session.userId
+                uuid: req.user
             }
         });
 
-        if (!result) return res.status(404).responseNoData(404, false, "Akun tidak ditemukan!");
+        if (!result) {
+            return res.status(404).responseNoData(404, false, "Akun tidak ditemukan!");
+        }
 
-        res.status(200).responseWithData(200, true, "Akun berhasil diambil!", result);
+         res.status(200).responseWithData(200, true, "Akun berhasil diambil!", result);
     } catch (error) {
-        res.status(500).responseNoData(500, false, error.message);
+         res.status(500).responseNoData(500, false, error.message);
     }
 }
 
@@ -69,7 +69,7 @@ const changePass = async (req, res) => {
     try {
         const result = await Users.findOne({
             where: {
-                id: req.session.userId
+                uuid: req.session.userId
             }
         });
 
@@ -78,11 +78,11 @@ const changePass = async (req, res) => {
         const isPasswordValid = await bcrypt.compare(currentPassword, result.password);
       
         if (!isPasswordValid) {
-            return res.status(400).responseNoData(400, false, "Password yang Anda masukkan salah!");
+             res.status(400).responseNoData(400, false, "Password yang Anda masukkan salah!");
         }
         
         if (password !== newPassword) {
-            return res.status(400).responseNoData(400, false, "Password dan konfirmasi password tidak cocok!");
+             res.status(400).responseNoData(400, false, "Password dan konfirmasi password tidak cocok!");
         }
 
         const salt = bcrypt.genSaltSync();
@@ -92,13 +92,13 @@ const changePass = async (req, res) => {
             password: hashPassword,
         }, {
             where: {
-                id: req.session.userId
+                uuid: req.session.userId
             }
         });
 
-        return res.status(200).responseNoData(200, true, "Password berhasil diubah!");
+         res.status(200).responseNoData(200, true, "Password berhasil diubah!");
     } catch (error) {
-        return res.status(500).responseNoData(500, false, error.message);
+         res.status(500).responseNoData(500, false, error.message);
     }
 }
 
@@ -110,7 +110,7 @@ const logout = async (req, res) => {
             res.status(200).responseNoData(200, true, "Anda berhasil logout!");
         });
     } catch (error) {
-        return res.status(500).responseNoData(500, false, error.message);
+         res.status(500).responseNoData(500, false, error.message);
     }
 }
 
