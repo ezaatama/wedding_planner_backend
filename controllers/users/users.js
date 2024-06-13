@@ -23,6 +23,11 @@ const createUser = async (req, res) => {
             return res.status(400).responseNoData(400, false, "Username atau email sudah terdaftar");
         }
 
+        const validRole = ["admin", "user"];
+        if (!validRole.includes(role)) {
+            return res.status(400).responseNoData(400, false, "Role harus berupa 'admin' atau 'user'!");
+        }
+
         await Users.create({
             username: username,
             email: email,
