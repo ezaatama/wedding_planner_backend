@@ -7,7 +7,17 @@ const Weddings = sequelize.define(
             type: DataTypes.INTEGER,
             autoIncrement: true,
             allowNull: false,
+            unique: true,
+            primaryKey: false,
+        },
+        uuid: {
+            type: DataTypes.STRING,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
             primaryKey: true,
+            validate: {
+                notEmpty: true
+            },
         },
         groom_name: {
             type: DataTypes.STRING,
@@ -31,11 +41,11 @@ const Weddings = sequelize.define(
             allowNull: false
         },
         venue: {
-            type: DataTypes.STRING,
-            validate: {
-                notEmpty: true
-            },
+            type: DataTypes.ENUM("aula", "gedung", "rumah"),
             allowNull: false
+        },
+        detail_venue: {
+            type: DataTypes.STRING,
         },
         address: {
             type: DataTypes.TEXT,
@@ -61,6 +71,12 @@ const Weddings = sequelize.define(
         freezeTableName: true,
         timestamps: true,
         paranoid: true, // Aktifkan soft deletes
+        indexes: [
+            {
+                unique: true,
+                fields: ['id']
+            }
+        ]
     }
 );
 
