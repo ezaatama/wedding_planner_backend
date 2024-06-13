@@ -3,7 +3,7 @@ const moment = require('moment-timezone');
 
 const createWeddings = async (req, res) => {
     try {
-        const { groom_name, bride_name, wedding_date, venue, address, user_id } = req.body
+        const { groom_name, bride_name, wedding_date, venue, detail_venue, address, user_id } = req.body
 
         if (!groom_name || !bride_name || !wedding_date || !venue || !address || !user_id) {
             return res.status(400).responseNoData(400, false, "Semua field wajib diisi!");
@@ -11,6 +11,11 @@ const createWeddings = async (req, res) => {
 
         if (user_id !== req.user) {
              return res.status(403).responseNoData(403, false, "Input data tidak sesuai dengan user yang login!");
+        }
+
+        const validVenues = ["aula", "rumah", "gedung"];
+        if (!validVenues.includes(venue)) {
+            return res.status(400).responseNoData(400, false, "Venue harus berupa 'aula', 'rumah' atau 'gedung'!");
         }
 
         // Memeriksa apakah user_id sudah ada di database
@@ -37,8 +42,9 @@ const createWeddings = async (req, res) => {
             bride_name: bride_name,
             wedding_date: weddingDateInWIBTime,
             venue: venue,
+            detail_venue: detail_venue,
             address: address,
-            user_id: req.session.userId
+            user_id: req.user
         });
 
          res.status(201).responseWithData(201, true, "Wedding berhasil didaftarkan!", result); 
@@ -56,7 +62,7 @@ const findWedding = async (req, res) => {
 
         if (role === "admin") {
             const result = await Weddings.findAndCountAll({
-                attributes: ["id", "groom_name", "bride_name", "wedding_date", "venue", "address"],
+                attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address"],
                 limit,
                 offset
             });
@@ -90,7 +96,7 @@ const findWedding = async (req, res) => {
             res.status(200).json(response);
         } else {
             const result = await Weddings.findAndCountAll({
-                attributes: ["id", "groom_name", "bride_name", "wedding_date", "venue", "address"],
+                attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address"],
                 where: {
                     user_id: req.user
                 },
@@ -135,9 +141,9 @@ const findWeddingById = async (req, res) => {
     try {
         const role = req.role;
         const result = await Weddings.findOne({
-            attributes: ["id", "groom_name", "bride_name", "wedding_date", "venue", "address"],
+            attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address"],
             where: {
-                id: req.params.id,
+                uuid: req.params.uuid,
                 ...(role !== "admin" && {
                     user_id: req.user
                 })
@@ -147,7 +153,7 @@ const findWeddingById = async (req, res) => {
         if (!result) {
             const weddingExists = await Weddings.findOne({
                 where: { 
-                    id: req.params.id 
+                    uuid: req.params.uuid
                 }
             });
 
@@ -163,8 +169,92 @@ const findWeddingById = async (req, res) => {
     }
 }
 
+const updateWedding = async (req, res) => {
+    const role = req.role;
+    const result = await Weddings.findOne({
+        where: {
+            uuid: req.params.uuid,
+            ...(role !== "admin" && {
+                    user_id: req.user
+            })
+        }
+    });
+
+    if(!result) {
+        const weddingExists = await Weddings.findOne({
+            where: { 
+                uuid: req.params.uuid 
+            }
+        });
+
+        if (weddingExists) {
+            return res.status(403).responseNoData(403, false, "Anda tidak memiliki izin untuk melihat detail wedding ini!");
+        }
+        return res.status(404).responseNoData(404, false, "Data wedding tidak ditemukan!");
+    }
+
+    const { groom_name, bride_name, wedding_date, venue, detail_venue, address } = req.body;
+
+     // Ubah tanggal menjadi objek moment dengan format tertentu
+     const momentDate = moment.utc(wedding_date, "DD-MM-YYYY");
+
+     if (!momentDate.isValid()) {
+         return res.status(400).responseNoData(400, false, "Format tanggal tidak valid!");
+     }
+
+     //CONVERT TANGGAL WIB
+     const weddingDateInWIBTime = momentDate.tz('Asia/Jakarta').format();
+
+    try {
+        await Weddings.update({
+            groom_name: groom_name,
+            bride_name: bride_name,
+            wedding_date: weddingDateInWIBTime,
+            venue: venue,
+            detail_venue: detail_venue,
+            address: address,
+        }, {
+            where: {
+                uuid: req.params.uuid,
+            }
+        });
+
+        res.status(201).responseNoData(201, true, "Wedding berhasil diubah!");
+    } catch (error) {
+        res.status(500).responseNoData(500, false, error.message);
+    }
+}
+
+const deleteWedding = async (req, res) => {
+    try {
+        const role = req.role;
+        const result = await Weddings.findOne({
+            where: {
+                uuid: req.params.uuid || null,
+                ...(role !== "admin" && {
+                    user_id: req.user
+                })
+            }
+        });
+
+        if (!result) return res.status(404).responseNoData(404, false, "Data wedding tidak ditemukan!");
+
+        await Weddings.destroy({
+            where: {
+                uuid: result.uuid
+            }
+        });
+
+        res.status(200).responseNoData(200, true, "Wedding berhasil dihapus!");
+    } catch (error) {
+        res.status(500).responseNoData(500, false, error.message);
+    }
+}
+
 module.exports = {
     createWeddings,
     findWedding,
-    findWeddingById
+    findWeddingById,
+    updateWedding,
+    deleteWedding
 }
