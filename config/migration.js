@@ -7,6 +7,7 @@ const Messages = require("../models/messages");
 const Images = require("../models/images");
 const AdminActions = require("../models/admin_actions");
 const Designs = require("../models/designs");
+const MstTimeSchedule = require("../models/time_schdule.js");
 
 //ASOSIASI USERS
 Users.hasOne(Weddings, {
@@ -24,13 +25,13 @@ Weddings.belongsTo(Users, {
 //ASOSIASI WEDDINGS
 Weddings.hasMany(Guests, {
   foreignKey: 'wedding_id',
-  sourceKey: 'id',
+  sourceKey: 'uuid',
   as: 'guests'
 });
 
 Guests.belongsTo(Weddings, {
   foreignKey: 'wedding_id',
-  targetKey: 'id',
+  targetKey: 'uuid',
   as: 'wedding'
 });
 
@@ -43,7 +44,7 @@ Guests.hasOne(Reservations, {
 
 Reservations.belongsTo(Weddings, {
   foreignKey: 'wedding_id',
-  targetKey: 'id',
+  targetKey: 'uuid',
   as: 'wedding'
 });
 
@@ -62,7 +63,7 @@ Guests.hasOne(Messages, {
 
 Messages.belongsTo(Weddings, {
   foreignKey: 'wedding_id',
-  targetKey: 'id',
+  targetKey: 'uuid',
   as: 'wedding'
 });
 
@@ -75,13 +76,13 @@ Messages.belongsTo(Guests, {
 //ASOSIASI IMAGES
 Weddings.hasMany(Images, {
   foreignKey: 'wedding_id',
-  sourceKey: 'id',
+  sourceKey: 'uuid',
   as: 'images'
 });
 
 Images.belongsTo(Weddings, {
   foreignKey: 'wedding_id',
-  targetKey: 'id',
+  targetKey: 'uuid',
   as: 'wedding'
 });
 
@@ -101,13 +102,26 @@ AdminActions.belongsTo(Users, {
 //ASOSIASI DESIGNS
 Weddings.hasOne(Designs, {
   foreignKey: 'wedding_id',
-  sourceKey: 'id',
+  sourceKey: 'uuid',
   as: 'design'
 });
 
 Designs.belongsTo(Weddings, {
-  foreignKey: 'weeding_id',
-  targetKey: 'id',
+  foreignKey: 'wedding_id',
+  targetKey: 'uuid',
+  as: 'wedding'
+});
+
+//ASOSIASI TIME SCHEDULE
+Weddings.hasOne(MstTimeSchedule, {
+  foreignKey: 'wedding_id',
+  sourceKey: 'uuid',
+  as: 'mst_time_schedule'
+});
+
+MstTimeSchedule.belongsTo(Weddings, {
+  foreignKey: 'wedding_id',
+  targetKey: 'uuid',
   as: 'wedding'
 });
 
