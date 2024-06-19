@@ -54,6 +54,18 @@ const Weddings = sequelize.define(
             },
             allowNull: false
         },
+        start_akad: {
+            type: DataTypes.STRING,
+        },
+        end_akad: {
+            type: DataTypes.STRING,
+        },
+        start_resepsi: {
+            type: DataTypes.STRING,
+        },
+        end_resepsi: {
+            type: DataTypes.STRING,
+        },
         user_id: { // Menambahkan kolom user_id sebagai foreign key
             type: DataTypes.STRING,
             allowNull: false,
