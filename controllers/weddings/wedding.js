@@ -3,9 +3,9 @@ const moment = require('moment-timezone');
 
 const createWeddings = async (req, res) => {
     try {
-        const { groom_name, bride_name, wedding_date, venue, detail_venue, address, user_id } = req.body
+        const { groom_name, bride_name, wedding_date, venue, detail_venue, address, start_akad, end_akad, start_resepsi, end_resepsi, user_id } = req.body
 
-        if (!groom_name || !bride_name || !wedding_date || !venue || !address || !user_id) {
+        if (!groom_name || !bride_name || !wedding_date || !venue || !address || !start_akad || !end_akad || !start_resepsi || !end_resepsi || !user_id) {
             return res.status(400).responseNoData(400, false, "Semua field wajib diisi!");
         }
 
@@ -44,6 +44,10 @@ const createWeddings = async (req, res) => {
             venue: venue,
             detail_venue: detail_venue,
             address: address,
+            start_akad: start_akad,
+            end_akad: end_akad,
+            start_resepsi: start_resepsi,
+            end_resepsi: end_resepsi,
             user_id: req.user
         });
 
@@ -193,27 +197,37 @@ const updateWedding = async (req, res) => {
         return res.status(404).responseNoData(404, false, "Data wedding tidak ditemukan!");
     }
 
-    const { groom_name, bride_name, wedding_date, venue, detail_venue, address } = req.body;
+    const { groom_name, bride_name, wedding_date, venue, detail_venue, address, start_akad, end_akad, start_resepsi, end_resepsi } = req.body;
+    let updateFields = {};
 
-     // Ubah tanggal menjadi objek moment dengan format tertentu
-     const momentDate = moment.utc(wedding_date, "DD-MM-YYYY");
+    if (groom_name !== undefined) updateFields.groom_name = groom_name;
+    if (bride_name !== undefined) updateFields.bride_name = bride_name;
 
-     if (!momentDate.isValid()) {
-         return res.status(400).responseNoData(400, false, "Format tanggal tidak valid!");
-     }
+    if (wedding_date !== undefined) {
+        const momentDate = moment.utc(wedding_date, "DD-MM-YYYY");
+        if (!momentDate.isValid()) {
+            return res.status(400).responseNoData(400, false, "Format tanggal tidak valid!");
+        }
+        updateFields.wedding_date = momentDate.tz('Asia/Jakarta').format();
+    }
 
-     //CONVERT TANGGAL WIB
-     const weddingDateInWIBTime = momentDate.tz('Asia/Jakarta').format();
+    if (venue !== undefined) {
+        const validVenues = ["aula", "rumah"];
+        if (!validVenues.includes(venue)) {
+            return res.status(400).responseNoData(400, false, "Venue harus berupa 'aula' atau 'rumah'!");
+        }
+        updateFields.venue = venue;
+    }
+
+    if (detail_venue !== undefined) updateFields.detail_venue = detail_venue;
+    if (address !== undefined) updateFields.address = address;
+    if (start_akad !== undefined) updateFields.start_akad = start_akad;
+    if (end_akad !== undefined) updateFields.end_akad = end_akad;
+    if (start_resepsi !== undefined) updateFields.start_resepsi = start_resepsi;
+    if (end_resepsi !== undefined) updateFields.end_resepsi = end_resepsi;
 
     try {
-        await Weddings.update({
-            groom_name: groom_name,
-            bride_name: bride_name,
-            wedding_date: weddingDateInWIBTime,
-            venue: venue,
-            detail_venue: detail_venue,
-            address: address,
-        }, {
+        await Weddings.update(updateFields, {
             where: {
                 uuid: req.params.uuid,
             }
