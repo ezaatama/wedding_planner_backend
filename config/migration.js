@@ -7,7 +7,6 @@ const Messages = require("../models/messages");
 const Images = require("../models/images");
 const AdminActions = require("../models/admin_actions");
 const Designs = require("../models/designs");
-const MstTimeSchedule = require("../models/time_schdule.js");
 
 //ASOSIASI USERS
 Users.hasOne(Weddings, {
@@ -107,19 +106,6 @@ Weddings.hasOne(Designs, {
 });
 
 Designs.belongsTo(Weddings, {
-  foreignKey: 'wedding_id',
-  targetKey: 'uuid',
-  as: 'wedding'
-});
-
-//ASOSIASI TIME SCHEDULE
-Weddings.hasOne(MstTimeSchedule, {
-  foreignKey: 'wedding_id',
-  sourceKey: 'uuid',
-  as: 'mst_time_schedule'
-});
-
-MstTimeSchedule.belongsTo(Weddings, {
   foreignKey: 'wedding_id',
   targetKey: 'uuid',
   as: 'wedding'
