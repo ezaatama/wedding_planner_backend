@@ -7,6 +7,7 @@ const app = express();
 const userRoutes = require("./routes/users/users");
 const authRoutes = require("./routes/auth/auth");
 const weddingRoutes = require("./routes/wedding/wedding");
+const guestRoutes = require("./routes/guests/guests");
 const responseMiddleware = require("./middleware/response");
 // const MIGRATE = require("./config/migration.js");
 
@@ -62,6 +63,7 @@ app.use(responseMiddleware);
 app.use(userRoutes);
 app.use(authRoutes);
 app.use(weddingRoutes);
+app.use(guestRoutes);
 
 app.listen(process.env.APP_PORT, () => {
     console.log(`Example app listening on port ${process.env.APP_PORT}`);
