@@ -1,3 +1,4 @@
+const Guests = require("../../models/guests");
 const Weddings = require("../../models/weddings");
 const moment = require('moment-timezone');
 
