@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/databases");
+const Weddings = require("../models/weddings");
 
 const Images = sequelize.define(
     "images", {
@@ -34,5 +35,18 @@ const Images = sequelize.define(
         paranoid: true, // Aktifkan soft deletes
     }
 );
+
+//ASOSIASI IMAGES
+Weddings.hasMany(Images, {
+    foreignKey: 'wedding_id',
+    sourceKey: 'uuid',
+    as: 'images'
+  });
+  
+Images.belongsTo(Weddings, {
+    foreignKey: 'wedding_id',
+    targetKey: 'uuid',
+    as: 'wedding'
+});
 
 module.exports = Images;

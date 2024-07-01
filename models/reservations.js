@@ -1,5 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/databases");
+const Guests = require("../models/guests");
+const Weddings = require("../models/weddings");
 
 const Reservations = sequelize.define(
     "reservations", {
@@ -41,5 +43,24 @@ const Reservations = sequelize.define(
         paranoid: true, // Aktifkan soft deletes
     }
 );
+
+//ASOSIASI RESERVATION
+Guests.hasOne(Reservations, {
+    foreignKey: 'guest_id',
+    sourceKey: 'id',
+    as: 'reservations'
+  });
+  
+Reservations.belongsTo(Weddings, {
+    foreignKey: 'wedding_id',
+    targetKey: 'uuid',
+    as: 'wedding'
+});
+  
+Reservations.belongsTo(Guests, {
+    foreignKey: 'guest_id',
+    targetKey: 'id',
+    as: 'guest'
+});
 
 module.exports = Reservations;

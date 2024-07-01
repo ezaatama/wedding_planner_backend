@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/databases");
+const Users = require("../models/users");
 
 const AdminActions = sequelize.define(
     "admin_actions", {
@@ -34,5 +35,18 @@ const AdminActions = sequelize.define(
         paranoid: true, // Aktifkan soft deletes
     }
 );
+
+//ASOSIASI ADMIN ACTIONS
+Users.hasMany(AdminActions, {
+    foreignKey: 'admin_id',
+    sourceKey: 'uuid',
+    as: 'admin_action'
+  });
+  
+AdminActions.belongsTo(Users, {
+    foreignKey: 'admin_id',
+    targetKey: 'uuid',
+    as: 'user'
+});
 
 module.exports = AdminActions;

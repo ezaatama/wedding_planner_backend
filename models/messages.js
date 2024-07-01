@@ -1,5 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/databases");
+const Guests = require("../models/guests");
+const Weddings = require("../models/weddings");
 
 const Messages = sequelize.define(
     "messages", {
@@ -41,5 +43,24 @@ const Messages = sequelize.define(
         paranoid: true, // Aktifkan soft deletes
     }
 );
+
+//ASOSIASI MESSAGES
+Guests.hasOne(Messages, {
+    foreignKey: 'guest_id',
+    sourceKey: 'id',
+    as: 'messages'
+  });
+  
+Messages.belongsTo(Weddings, {
+    foreignKey: 'wedding_id',
+    targetKey: 'uuid',
+    as: 'wedding'
+});
+  
+Messages.belongsTo(Guests, {
+    foreignKey: 'guest_id',
+    targetKey: 'id',
+    as: 'guest'
+});
 
 module.exports = Messages;

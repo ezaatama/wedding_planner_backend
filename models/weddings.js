@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/databases");
+const Guests = require("../models/guests");
 
 const Weddings = sequelize.define(
     "weddings", {
@@ -91,5 +92,18 @@ const Weddings = sequelize.define(
         ]
     }
 );
+
+//ASOSIASI WEDDINGS
+Weddings.hasMany(Guests, {
+    foreignKey: 'wedding_id',
+    sourceKey: 'uuid',
+    as: 'guests'
+  });
+  
+Guests.belongsTo(Weddings, {
+foreignKey: 'wedding_id',
+targetKey: 'uuid',
+as: 'wedding'
+});
 
 module.exports = Weddings;
