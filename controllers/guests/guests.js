@@ -35,7 +35,7 @@ const createGuests = async (req, res) => {
         })
         res.status(201).responseWithData(201, true, "Tamu berhasil didaftarkan!", result); 
     } catch (error) {
-         res.status(500).responseNoData(500, false, error.message);
+        res.status(500).responseNoData(500, false, error.message);
     }
 }
 
@@ -108,8 +108,7 @@ const findGuests = async (req, res) => {
         res.status(200).json(response);
 
     } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ code: 500, status: false, message: error.message });
+        res.status(500).responseNoData(500, false, error.message);
     }
 }
 
