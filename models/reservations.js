@@ -16,11 +16,11 @@ const Reservations = sequelize.define(
             allowNull: false,
         },
         wedding_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: false,
             references: {
                 model: 'weddings',
-                key: 'id'
+                key: 'uuid'
             },
             onDelete: "CASCADE"
         },
