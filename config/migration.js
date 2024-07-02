@@ -25,7 +25,7 @@ sequelize
   .then(() => {
     console.log("Database connected...");
     // Users.sync({alter: true});
-    // Guests.sync({force: true});
+    // Reservations.sync({force: true});
     // User.drop();
   })
   .catch((err) => {
