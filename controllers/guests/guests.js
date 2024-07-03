@@ -1,3 +1,5 @@
+const DetailBride = require("../../models/detail_bride");
+const DetailLocation = require("../../models/detail_location");
 const Guests = require("../../models/guests");
 const Weddings = require("../../models/weddings");
 
@@ -73,8 +75,23 @@ const findGuests = async (req, res) => {
             include: [
                 {
                     model: Weddings,
-                    attributes: ["groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address"],
-                    as: 'wedding'
+                    attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address", "start_akad", "end_akad", "start_resepsi", "end_resepsi", "song_invitation"],
+                    as: 'wedding',
+                    include: [
+                        {
+                            model: DetailBride,
+                            attributes: ["uuid", "groom_to", "bride_to", "groom_parent", 
+                                "bride_parent", "groom_no_rek", "groom_name_rek", 
+                                "groom_bank_rek", "bride_no_rek", "bride_name_rek", 
+                                "bride_bank_rek", "send_gift_address"],
+                            as: 'detail_bride'
+                        },
+                        {
+                            model: DetailLocation,
+                            attributes: ["uuid", "maps_akad", "maps_resepsi"],
+                            as: 'detail_location'
+                        }
+                    ]
                 }
             ]
         });
@@ -114,9 +131,17 @@ const findGuests = async (req, res) => {
 
 const findGuestById = async (req, res) => {
     try {
+        const { groomBride } = req.params;
         const guestName = req.query.kepada || "";
         const role = req.role;
         const userId = req.user;
+
+         // Pisahkan groom_name dan bride_name dari groomBride
+         const [groom_name, bride_name] = groomBride.split('-');
+
+         if (!groom_name || !bride_name) {
+             return res.status(400).responseNoData(400, false, 'Invalid groomBride format');
+         }
 
         // Jika role bukan admin, cari wedding_id berdasarkan user_id
         let whereCondition = { guest_name: guestName };
@@ -135,14 +160,31 @@ const findGuestById = async (req, res) => {
         }
 
         const result = await Guests.findOne({
-            attributes: ["id", "guest_name"],
+            attributes: ["id", "wedding_id", "guest_name"],
             where: whereCondition,
             include: [
                 {
                     model: Weddings,
-                    attributes: ["groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address"],
-                    as: 'wedding'
-                }
+                    attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address", "start_akad", "end_akad", "start_resepsi", "end_resepsi", "song_invitation"],
+                    as: 'wedding',
+                    where: { groom_name, bride_name },
+                    include: [
+                        {
+                            model: DetailBride,
+                            attributes: ["uuid", "groom_to", "bride_to", "groom_parent", 
+                                "bride_parent", "groom_no_rek", "groom_name_rek", 
+                                "groom_bank_rek", "bride_no_rek", "bride_name_rek", 
+                                "bride_bank_rek", "send_gift_address"],
+                            as: 'detail_bride'
+                        },
+                        {
+                            model: DetailLocation,
+                            attributes: ["uuid", "maps_akad", "maps_resepsi"],
+                            as: 'detail_location'
+                        }
+                    ]
+                },
+                
             ]
         });
 
