@@ -1,12 +1,14 @@
+const DetailBride = require("../../models/detail_bride");
+const DetailLocation = require("../../models/detail_location");
 const Guests = require("../../models/guests");
 const Weddings = require("../../models/weddings");
 const moment = require('moment-timezone');
 
 const createWeddings = async (req, res) => {
     try {
-        const { groom_name, bride_name, wedding_date, venue, detail_venue, address, start_akad, end_akad, start_resepsi, end_resepsi, user_id } = req.body
+        const { groom_name, bride_name, wedding_date, venue, detail_venue, address, start_akad, end_akad, start_resepsi, end_resepsi, song_invitation, user_id } = req.body
 
-        if (!groom_name || !bride_name || !wedding_date || !venue || !address || !start_akad || !end_akad || !start_resepsi || !end_resepsi || !user_id) {
+        if (!groom_name || !bride_name || !wedding_date || !venue || !address || !start_akad || !end_akad || !start_resepsi || !end_resepsi || !song_invitation || !user_id) {
             return res.status(400).responseNoData(400, false, "Semua field wajib diisi!");
         }
 
@@ -49,6 +51,7 @@ const createWeddings = async (req, res) => {
             end_akad: end_akad,
             start_resepsi: start_resepsi,
             end_resepsi: end_resepsi,
+            song_invitation: song_invitation,
             user_id: req.user
         });
 
@@ -67,7 +70,7 @@ const findWedding = async (req, res) => {
 
         if (role === "admin") {
             const result = await Weddings.findAndCountAll({
-                attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address"],
+                attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address", "start_akad", "end_akad", "start_resepsi", "end_resepsi", "song_invitation"],
                 limit,
                 offset
             });
@@ -101,7 +104,7 @@ const findWedding = async (req, res) => {
             res.status(200).json(response);
         } else {
             const result = await Weddings.findAndCountAll({
-                attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address"],
+                attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address", "start_akad", "end_akad", "start_resepsi", "end_resepsi", "song_invitation" ],
                 where: {
                     user_id: req.user
                 },
@@ -146,13 +149,28 @@ const findWeddingById = async (req, res) => {
     try {
         const role = req.role;
         const result = await Weddings.findOne({
-            attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address"],
+            attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address", "start_akad", "end_akad", "start_resepsi", "end_resepsi", "song_invitation"],
             where: {
                 uuid: req.params.uuid,
                 ...(role !== "admin" && {
                     user_id: req.user
                 })
-            }
+            },
+            include: [
+                {
+                    model: DetailBride,
+                    attributes: ["uuid", "groom_to", "bride_to", "groom_parent", 
+                        "bride_parent", "groom_no_rek", "groom_name_rek", 
+                        "groom_bank_rek", "bride_no_rek", "bride_name_rek", 
+                        "bride_bank_rek", "send_gift_address"],
+                    as: 'guest_id'
+                },
+                {
+                    model: DetailLocation,
+                    attributes: ["uuid", "maps_akad", "maps_resepsi"],
+                    as: 'guest_loc_id'
+                }
+            ]
         });
 
         if (!result) {
@@ -198,7 +216,7 @@ const updateWedding = async (req, res) => {
         return res.status(404).responseNoData(404, false, "Data wedding tidak ditemukan!");
     }
 
-    const { groom_name, bride_name, wedding_date, venue, detail_venue, address, start_akad, end_akad, start_resepsi, end_resepsi } = req.body;
+    const { groom_name, bride_name, wedding_date, venue, detail_venue, address, start_akad, end_akad, start_resepsi, end_resepsi, song_invitation } = req.body;
     let updateFields = {};
 
     if (groom_name !== undefined) updateFields.groom_name = groom_name;
@@ -226,6 +244,7 @@ const updateWedding = async (req, res) => {
     if (end_akad !== undefined) updateFields.end_akad = end_akad;
     if (start_resepsi !== undefined) updateFields.start_resepsi = start_resepsi;
     if (end_resepsi !== undefined) updateFields.end_resepsi = end_resepsi;
+    if (song_invitation !== undefined) updateFields.song_invitation = song_invitation;
 
     try {
         await Weddings.update(updateFields, {
