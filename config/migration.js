@@ -7,7 +7,8 @@ const Messages = require("../models/messages");
 const Images = require("../models/images");
 const AdminActions = require("../models/admin_actions");
 const Designs = require("../models/designs");
-
+const DetailBride = require("../models/detail_bride.js");
+const DetailLocation = require("../models/detail_location.js");
 
 
 
@@ -25,11 +26,11 @@ sequelize
   .then(() => {
     console.log("Database connected...");
     // Users.sync({alter: true});
-    // Reservations.sync({force: true});
+    // Guests.sync({alter: true});
     // User.drop();
   })
   .catch((err) => {
     console.error(err);
   });
 
-module.exports = { Users, Weddings, Guests, Reservations, Images, AdminActions, Designs, Messages };
+module.exports = { Users, Weddings, Guests, Reservations, Images, AdminActions, Designs, Messages, DetailBride, DetailLocation };
