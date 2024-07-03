@@ -1,6 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/databases");
 const Guests = require("../models/guests");
+const DetailBride = require("./detail_bride");
+const DetailLocation = require("./detail_location");
 
 const Weddings = sequelize.define(
     "weddings", {
@@ -67,6 +69,9 @@ const Weddings = sequelize.define(
         end_resepsi: {
             type: DataTypes.STRING,
         },
+        song_invitation : {
+            type: DataTypes.STRING,
+        },
         user_id: { // Menambahkan kolom user_id sebagai foreign key
             type: DataTypes.STRING,
             allowNull: false,
@@ -104,6 +109,30 @@ Guests.belongsTo(Weddings, {
 foreignKey: 'wedding_id',
 targetKey: 'uuid',
 as: 'wedding'
+});
+
+Weddings.hasOne(DetailBride, {
+    foreignKey: 'wedding_id',
+    sourceKey: 'uuid',
+    as: 'detail_bride'
+});
+
+DetailBride.belongsTo(Weddings, {
+    foreignKey: 'wedding_id',
+    targetKey: 'uuid',
+    as: 'detail_bride'
+});
+
+Weddings.hasOne(DetailLocation, {
+    foreignKey: 'wedding_id',
+    sourceKey: 'uuid',
+    as: 'detail_location'
+});
+
+DetailLocation.belongsTo(Weddings, {
+    foreignKey: 'wedding_id',
+    targetKey: 'uuid',
+    as: 'detail_location'
 });
 
 module.exports = Weddings;
