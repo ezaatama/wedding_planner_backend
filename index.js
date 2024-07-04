@@ -12,6 +12,7 @@ const reservationRoutes = require("./routes/reservations/reservations");
 const detailBrideRoutes = require("./routes/wedding/detail_bride/detail_bride");
 const detailLocationRoutes = require("./routes/wedding/detail_location/detail_location");
 const messagesRoutes = require("./routes/messages/messages");
+const imagesRoutes = require("./routes/wedding/images/wedding_image");
 const responseMiddleware = require("./middleware/response");
 // const MIGRATE = require("./config/migration.js");
 
@@ -72,6 +73,7 @@ app.use(reservationRoutes);
 app.use(detailBrideRoutes);
 app.use(detailLocationRoutes);
 app.use(messagesRoutes);
+app.use(imagesRoutes);
 
 app.listen(process.env.APP_PORT, () => {
     console.log(`Example app listening on port ${process.env.APP_PORT}`);
