@@ -39,7 +39,7 @@ app.use(
 const corsOptions = {
     exposedHeaders: ["Authorization", "x-access-token"],
     credentials: true,
-    origin: ["http://localhost:3000", "http://localhost:3000"],
+    origin: ["https://api-wedding-six.vercel.app", "https://api-wedding-six.vercel.app"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     optionsSuccessStatus: 204,
   };
