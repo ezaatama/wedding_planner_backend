@@ -1,26 +1,26 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/databases");
-const Guests = require("../models/guests");
-const Weddings = require("../models/weddings");
+const Guests = require("./guests");
+const Weddings = require("./weddings");
 
-const Messages = sequelize.define(
-    "messages", {
+const Reservations = sequelize.define(
+    "reservations", {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             allowNull: false,
             primaryKey: true,
         },
-        message: {
-            type: DataTypes.TEXT,
+        response: {
+            type: DataTypes.ENUM("accepted", "declined"),
             allowNull: false,
         },
         wedding_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: false,
             references: {
                 model: 'weddings',
-                key: 'id'
+                key: 'uuid'
             },
             onDelete: "CASCADE"
         },
@@ -44,23 +44,23 @@ const Messages = sequelize.define(
     }
 );
 
-//ASOSIASI MESSAGES
-Guests.hasOne(Messages, {
+//ASOSIASI RESERVATION
+Guests.hasOne(Reservations, {
     foreignKey: 'guest_id',
     sourceKey: 'id',
-    as: 'messages'
+    as: 'reservations'
   });
   
-Messages.belongsTo(Weddings, {
+Reservations.belongsTo(Weddings, {
     foreignKey: 'wedding_id',
     targetKey: 'uuid',
     as: 'wedding'
 });
   
-Messages.belongsTo(Guests, {
+Reservations.belongsTo(Guests, {
     foreignKey: 'guest_id',
     targetKey: 'id',
     as: 'guest'
 });
 
-module.exports = Messages;
+module.exports = Reservations;
