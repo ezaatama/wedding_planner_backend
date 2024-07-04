@@ -1,6 +1,7 @@
 const DetailBride = require("../../models/detail_bride");
 const DetailLocation = require("../../models/detail_location");
 const Guests = require("../../models/guests");
+const Images = require("../../models/images");
 const Weddings = require("../../models/weddings");
 const moment = require('moment-timezone');
 
@@ -72,7 +73,27 @@ const findWedding = async (req, res) => {
             const result = await Weddings.findAndCountAll({
                 attributes: ["uuid", "groom_name", "bride_name", "wedding_date", "venue", "detail_venue", "address", "start_akad", "end_akad", "start_resepsi", "end_resepsi", "song_invitation"],
                 limit,
-                offset
+                offset,
+                include: [
+                    {
+                        model: DetailBride,
+                        attributes: ["uuid", "groom_to", "bride_to", "groom_parent", 
+                            "bride_parent", "groom_no_rek", "groom_name_rek", 
+                            "groom_bank_rek", "bride_no_rek", "bride_name_rek", 
+                            "bride_bank_rek", "send_gift_address"],
+                        as: 'detail_bride'
+                    },
+                    {
+                        model: DetailLocation,
+                        attributes: ["uuid", "maps_akad", "maps_resepsi"],
+                        as: 'detail_location'
+                    },
+                    {
+                        model: Images,
+                        attributes: ["image_url", "description"],
+                        as: 'images'
+                    }
+                ]
             });
 
             const totalItems = result.count;
@@ -109,7 +130,27 @@ const findWedding = async (req, res) => {
                     user_id: req.user
                 },
                 limit,
-                offset
+                offset,
+                include: [
+                    {
+                        model: DetailBride,
+                        attributes: ["uuid", "groom_to", "bride_to", "groom_parent", 
+                            "bride_parent", "groom_no_rek", "groom_name_rek", 
+                            "groom_bank_rek", "bride_no_rek", "bride_name_rek", 
+                            "bride_bank_rek", "send_gift_address"],
+                        as: 'detail_bride'
+                    },
+                    {
+                        model: DetailLocation,
+                        attributes: ["uuid", "maps_akad", "maps_resepsi"],
+                        as: 'detail_location'
+                    },
+                    {
+                        model: Images,
+                        attributes: ["image_url", "description"],
+                        as: 'images'
+                    }
+                ]
             });
 
             const totalItems = result.count;
@@ -163,12 +204,17 @@ const findWeddingById = async (req, res) => {
                         "bride_parent", "groom_no_rek", "groom_name_rek", 
                         "groom_bank_rek", "bride_no_rek", "bride_name_rek", 
                         "bride_bank_rek", "send_gift_address"],
-                    as: 'guest_id'
+                    as: 'detail_bride'
                 },
                 {
                     model: DetailLocation,
                     attributes: ["uuid", "maps_akad", "maps_resepsi"],
-                    as: 'guest_loc_id'
+                    as: 'detail_location'
+                },
+                {
+                    model: Images,
+                    attributes: ["image_url", "description"],
+                    as: 'images'
                 }
             ]
         });
