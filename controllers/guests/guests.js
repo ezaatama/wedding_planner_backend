@@ -1,6 +1,7 @@
 const DetailBride = require("../../models/detail_bride");
 const DetailLocation = require("../../models/detail_location");
 const Guests = require("../../models/guests");
+const Images = require("../../models/images");
 const Weddings = require("../../models/weddings");
 
 const createGuests = async (req, res) => {
@@ -90,6 +91,11 @@ const findGuests = async (req, res) => {
                             model: DetailLocation,
                             attributes: ["uuid", "maps_akad", "maps_resepsi"],
                             as: 'detail_location'
+                        },
+                        {
+                            model: Images,
+                            attributes: ["image_url", "description"],
+                            as: 'images'
                         }
                     ]
                 }
@@ -181,6 +187,11 @@ const findGuestById = async (req, res) => {
                             model: DetailLocation,
                             attributes: ["uuid", "maps_akad", "maps_resepsi"],
                             as: 'detail_location'
+                        },
+                        {
+                            model: Images,
+                            attributes: ["image_url", "description"],
+                            as: 'images'
                         }
                     ]
                 },
